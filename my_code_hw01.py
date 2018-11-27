@@ -37,7 +37,7 @@ def nn_interpolation(list_pts_3d, j_nn):
         i.pop()
     
     #convert list of points into an array
-    list_pts2d = np.array(list_pts2d)k,
+    list_pts2d = np.array(list_pts2d)
     
     #bounding box coordinates
     xmin = np.min(list_pts2d[:,0])
