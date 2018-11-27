@@ -21,40 +21,43 @@ def nn_interpolation(list_pts_3d, j_nn):
         j_nn:        the parameters of the input for "nn"
     Output:
         returns the value of the area
- 
-    """  
-    print("=== Nearest neighbour interpolation ===")
-
-    # print("cellsize:", j_nn['cellsize'])
-
     #-- to speed up the nearest neighbour us a kd-tree
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.html#scipy.spatial.KDTree
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query.html#scipy.spatial.KDTree.query
     
-    p = []
-    list_pts = list_pts_3d[:]
-    for i in list_pts:
+    """  
+
+
+    #empty list to append middle-points of grid
+    middle_pts = []                                         
+    
+    #list of x,y coordinates without z value
+    list_pts2d = list_pts_3d[:]
+    for i in list_pts2d:
         i.pop()
-    xcoord = []
-    ycoord = []
-    for i in list_pts:
-        xcoord.append(i[0])
-        ycoord.append(i[1])
-    xmin = min(xcoord)
-    xmax = max(xcoord)
-    ymin = min(ycoord)
-    ymax = max(ycoord)
-    ll = [xmin,ymin]
-    ur = [xmax,ymax]
+    
+    #convert list of points into an array
+    list_pts2d = np.array(list_pts2d)
+    
+    #bounding box coordinates
+    xmin = np.min(list_pts2d[:,0])
+    xmax = np.max(list_pts2d[:,0])
+    ymin = np.min(list_pts2d[:,1])
+    ymax = np.max(list_pts2d[:,1])
+    
+    #append middle_points to list middle_pts
+    for i in range(1,int(ymax-ymin)):
+        for j in range(1,int(xmax-xmin)):
+            middle_pts.append([xmin+j-0.5,ymin+i-0.5])
+            
+    #query for nearest middle_points to points from list_pts
+    kd = scipy.spatial.KDTree(list_pts2d)
+    d, i = kd.query(middle_pts, k=1)
 
-    for i in range(1,int(ymax-ymin),1):
-        for j in range(1,int(xmax-xmin),1):
-            p.append([xmin+j-0.5,ymin+i-0.5])
-
-    kd = scipy.spatial.KDTree(list_pts)
-    d, i = kd.query(p, k=1)
-    print (d)
-    print (i)
+    
+    print (d,i)
+    print("=== Nearest neighbour interpolation ===")
+    print("cellsize:", j_nn['cellsize'])
     print("File written to", j_nn['output-file'])
 
 
