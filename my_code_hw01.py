@@ -69,21 +69,21 @@ def nn_interpolation(list_pts_3d, j_nn):
     nodata = -9999
     
     nn = open(j_nn['output-file'],"w+")
-    nn.write("NCOLS %d\n" % (ncols))
-    nn.write("NROWS %d\n" % (nrows))
-    nn.write("XLLCORNER %d\n" % (xll))
-    nn.write("YLLCORNER %d\n" % (yll))
-    nn.write("CELLSIZE %d\n" % (j_nn['cellsize']))
-    nn.write("NODATA_VALUE %d\n" % (nodata))
-    nn.write("%d" % (nodata))
-    start_of_line_y = len(middle_pts)-ncolms
-    while 
-    for i in range((len(middle_pts)-ncolms),len(middle_pts)):
-        nn.write("%d" % (middle_pts[i][2]))
-        
-  
-        
-        
+    nn.write("NCOLS {0}\n".format(ncols))
+    nn.write("NROWS {0}\n".format(nrows))
+    nn.write("XLLCORNER {0}\n".format(xll))
+    nn.write("YLLCORNER {0}\n".format(yll))
+    nn.write("CELLSIZE {0}\n".format(j_nn['cellsize']))
+    nn.write("NODATA_VALUE {0}\n".format(nodata))
+    nn.write("{0}\n".format(nodata))
+    a = int(len(middle_pts)-ncols)
+    b = int(len(middle_pts))
+    while a>0:
+        for i in range(a,b):
+            nn.write("{0} ".format(middle_pts[i][2]))
+        nn.write('\n')
+        a = a - int(ncols)
+        b = b - int(ncols)
     nn.close()
 
     
