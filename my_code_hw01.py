@@ -26,35 +26,79 @@ def nn_interpolation(list_pts_3d, j_nn):
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query.html#scipy.spatial.KDTree.query
     
     """  
-
-
     #empty list to append middle-points of grid
     middle_pts = []                                         
-    
-    #list of x,y coordinates without z value
-    list_pts2d = list_pts_3d[:]
-    for i in list_pts2d:
-        i.pop()
-    
-    #convert list of points into an array
-    list_pts2d = np.array(list_pts2d)
-    
-    #bounding box coordinates
-    xmin = np.min(list_pts2d[:,0])
-    xmax = np.max(list_pts2d[:,0])
-    ymin = np.min(list_pts2d[:,1])
-    ymax = np.max(list_pts2d[:,1])
 
-    #append middle_points to list middle_pts
+    #convert list of points into an array
+    list_pts_3d = np.array(list_pts_3d)
+
+    #bounding box coordinates
+    xmin = np.min(list_pts_3d[:,0])
+    xmax = np.max(list_pts_3d[:,0])
+    ymin = np.min(list_pts_3d[:,1])
+    ymax = np.max(list_pts_3d[:,1])
+
+    #append middle_points
     for i in range(1,int(ymax-ymin+1)):
         for j in range(1,int(xmax-xmin+1)):
             middle_pts.append([xmin+j-0.5,ymin+i-0.5])
-
+            
+    #check if middle_points are in the convex hull
+    list2d = []
+    for k in list_pts_3d:
+        list2d.append([k[0],k[1]])
+    tri = scipy.spatial.Delaunay(list2d)
+    checklist = tri.find_simplex(middle_pts)
+    
     #query for nearest middle_points to points from list_pts
-    kd = scipy.spatial.KDTree(list_pts_3d)
+    kd = scipy.spatial.KDTree(list_pts_3d[:,(0,1)])
     d, i = kd.query(middle_pts, k=1)
 
     #append z value to middle points
+    for n in range(len(middle_pts)):
+        middle_pts[n].append(list_pts_3d[i[n]][2])
+    for n in range(len(middle_pts)):
+        if checklist[n] == -1:
+            middle_pts[n][2] = -9999
+
+    #create ASCI file
+    ncols = (xmax-xmin)/int(j_nn['cellsize'])
+    nrows = (ymax-ymin)/int(j_nn['cellsize'])
+    xll = xmin
+    yll = ymin
+    nodata = -9999
+    
+    nn = open(j_nn['output-file'],"w+")
+    nn.write("NCOLS %d\n" % (ncols))
+    nn.write("NROWS %d\n" % (nrows))
+    nn.write("XLLCORNER %d\n" % (xll))
+    nn.write("YLLCORNER %d\n" % (yll))
+    nn.write("CELLSIZE %d\n" % (j_nn['cellsize']))
+    nn.write("NODATA_VALUE %d\n" % (nodata))
+    nn.write("%d" % (nodata))
+    start_of_line_y = len(middle_pts)-ncolms
+    while 
+    for i in range((len(middle_pts)-ncolms),len(middle_pts)):
+        nn.write("%d" % (middle_pts[i][2]))
+        
+  
+        
+        
+    nn.close()
+
+    
+    """
+    NCOLS 3
+    NROWS 3
+    XLLCORNER 0
+    YLLCORNER 0
+    CELLSIZE 10
+    NODATA_VALUE -9999
+    1.0 2.0 3.0
+    4.0 5.0 6.0
+    7.0 8.0 9.0
+    """
+    
     
     print("=== Nearest neighbour interpolation ===")
     print("cellsize:", j_nn['cellsize'])
