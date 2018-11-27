@@ -37,25 +37,25 @@ def nn_interpolation(list_pts_3d, j_nn):
         i.pop()
     
     #convert list of points into an array
-    list_pts2d = np.array(list_pts2d)
+    list_pts2d = np.array(list_pts2d)k,
     
     #bounding box coordinates
     xmin = np.min(list_pts2d[:,0])
     xmax = np.max(list_pts2d[:,0])
     ymin = np.min(list_pts2d[:,1])
     ymax = np.max(list_pts2d[:,1])
-    
+
     #append middle_points to list middle_pts
-    for i in range(1,int(ymax-ymin)):
-        for j in range(1,int(xmax-xmin)):
+    for i in range(1,int(ymax-ymin+1)):
+        for j in range(1,int(xmax-xmin+1)):
             middle_pts.append([xmin+j-0.5,ymin+i-0.5])
-            
+
     #query for nearest middle_points to points from list_pts
-    kd = scipy.spatial.KDTree(list_pts2d)
+    kd = scipy.spatial.KDTree(list_pts_3d)
     d, i = kd.query(middle_pts, k=1)
 
+    #append z value to middle points
     
-    print (d,i)
     print("=== Nearest neighbour interpolation ===")
     print("cellsize:", j_nn['cellsize'])
     print("File written to", j_nn['output-file'])
